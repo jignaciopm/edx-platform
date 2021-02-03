@@ -185,7 +185,17 @@ FEATURES = {
     # .. toggle_tickets: None
     'ENABLE_SYSADMIN_DASHBOARD': False,  # sysadmin dashboard, to see what courses are loaded, to delete & load courses
 
-    'DISABLE_LOGIN_BUTTON': False,  # used in systems where login is automatic, eg MIT SSL
+    # .. toggle_name: FEATURES['DISABLE_LOGIN_BUTTON']
+    # .. toggle_implementation: DjangoSetting
+    # .. toggle_default: False
+    # .. toggle_description: Removes the display of the login button in the navigation bar.
+    #   Change is only at the UI level. Used in systems where login is automatic, eg MIT SSL
+    # .. toggle_use_cases: open_edx
+    # .. toggle_creation_date: 2013-12-03
+    # .. toggle_target_removal_date: None
+    # .. toggle_warnings: None
+    # .. toggle_tickets: None
+    'DISABLE_LOGIN_BUTTON': False,
 
     # .. toggle_name: FEATURES['ENABLE_OAUTH2_PROVIDER']
     # .. toggle_implementation: DjangoSetting
@@ -527,7 +537,17 @@ FEATURES = {
     # .. toggle_tickets: https://github.com/edx/edx-platform/pull/9744
     'ENABLE_SPECIAL_EXAMS': False,
 
-    # Enable OpenBadge support. See the BADGR_* settings later in this file.
+    # .. toggle_name: FEATURES['ENABLE_OPENBADGES']
+    # .. toggle_implementation: DjangoSetting
+    # .. toggle_default: False
+    # .. toggle_description: Enables support for the creation of OpenBadges as a method of awarding credentials.
+    # .. toggle_warnings: The following settings (all of which are in the same file) should be set or reviewed prior to
+    #    enabling this setting: BADGING_BACKEND, BADGR_API_TOKEN, BADGR_BASE_URL, BADGR_ISSUER_SLUG, BADGR_TIMEOUT.
+    #    Full guide for setting up OpenBadges available here:
+    #    https://edx.readthedocs.io/projects/edx-installing-configuring-and-running/en/latest/configuration/enable_badging.html  pylint: disable=line-too-long,useless-suppression
+    # .. toggle_use_cases: open_edx
+    # .. toggle_creation_date: 2015-04-30
+    # .. toggle_tickets: https://openedx.atlassian.net/browse/SOL-1325
     'ENABLE_OPENBADGES': False,
 
     # Enable LTI Provider feature.
@@ -1660,11 +1680,39 @@ PAID_COURSE_REGISTRATION_CURRENCY = ['usd', '$']
 ################################# EdxNotes config  #########################
 
 # Configure the LMS to use our stub EdxNotes implementation
+# .. setting_name: EDXNOTES_PUBLIC_API
+# .. setting_default: http://localhost:18120/api/v1
+# .. setting_description: Set the public API endpoint LMS will use in the frontend to
+#     interact with the edx_notes_api service.
+# .. setting_warning: This setting must be a publicly accessible endpoint. It is only used
+#     when the setting FEATURES['ENABLE_EDXNOTES'] is activated.
 EDXNOTES_PUBLIC_API = 'http://localhost:18120/api/v1'
+# .. setting_name: EDXNOTES_INTERNAL_API
+# .. setting_default: http://localhost:18120/api/v1
+# .. setting_description: Set the internal API endpoint LMS will use in the backend to
+#     interact with the edx_notes_api service.
+# .. setting_warning: Normally set to the same value of EDXNOTES_PUBLIC_API. It is not
+#     mandatory for this setting to be a publicly accessible endpoint, but to be accessible
+#     by the LMS service. It is only used when the setting FEATURES['ENABLE_EDXNOTES'] is
+#     activated.
 EDXNOTES_INTERNAL_API = 'http://localhost:18120/api/v1'
+# .. setting_name: EDXNOTES_CLIENT_NAME
+# .. setting_default: edx-notes
+# .. setting_description: Set the name of the Oauth client used by LMS to authenticate with
+#     the edx_notes_api service.
+# .. setting_warning: The Oauth client must be created in the platform Django admin in the
+#     path /admin/oauth2_provider/application/, setting the name field of the client as the
+#     value of this setting.
 EDXNOTES_CLIENT_NAME = "edx-notes"
-
+# .. setting_name: EDXNOTES_CONNECT_TIMEOUT
+# .. setting_default: 0.5
+# .. setting_description: Set the number of seconds LMS will wait to establish an internal
+#     connection to the edx_notes_api service.
 EDXNOTES_CONNECT_TIMEOUT = 0.5  # time in seconds
+# .. setting_name: EDXNOTES_READ_TIMEOUT
+# .. setting_default: 1.5
+# .. setting_description: Set the number of seconds LMS will wait for a response from the
+#     edx_notes_api service internal endpoint.
 EDXNOTES_READ_TIMEOUT = 1.5  # time in seconds
 
 ########################## Parental controls config  #######################
@@ -2392,21 +2440,47 @@ HEARTBEAT_CELERY_ROUTING_KEY = HIGH_PRIORITY_QUEUE
 
 ################################ Block Structures ###################################
 
+# .. setting_name: BLOCK_STRUCTURES_SETTINGS
+# .. setting_default: dict of settings
+# .. setting_description: Stores all the settings used by block structures and block structure
+#   related tasks. See BLOCK_STRUCTURES_SETTINGS[XXX] documentation for details of each setting.
+#   For more information, check https://openedx.atlassian.net/browse/TNL-5041.
 BLOCK_STRUCTURES_SETTINGS = dict(
-    # Delay, in seconds, after a new edit of a course is published
-    # before updating the block structures cache.  This is needed
-    # for a better chance at getting the latest changes when there
-    # are secondary reads in sharded mongoDB clusters. See TNL-5041
-    # for more info.
+    # .. setting_name: BLOCK_STRUCTURES_SETTINGS['COURSE_PUBLISH_TASK_DELAY']
+    # .. setting_default: 30
+    # .. setting_description: Delay, in seconds, after a new edit of a course is published before
+    #   updating the block structures cache. This is needed for a better chance at getting
+    #   the latest changes when there are secondary reads in sharded mongoDB clusters.
+    #   For more information, check https://openedx.atlassian.net/browse/TNL-5041.
     COURSE_PUBLISH_TASK_DELAY=30,
 
-    # Delay, in seconds, between retry attempts if a task fails.
+    # .. setting_name: BLOCK_STRUCTURES_SETTINGS['TASK_DEFAULT_RETRY_DELAY']
+    # .. setting_default: 30
+    # .. setting_description: Delay, in seconds, between retry attempts if a block structure task
+    #   fails. For more information, check https://openedx.atlassian.net/browse/TNL-5041.
     TASK_DEFAULT_RETRY_DELAY=30,
 
-    # Maximum number of retries per task.
+    # .. setting_name: BLOCK_STRUCTURES_SETTINGS['TASK_MAX_RETRIES']
+    # .. setting_default: 5
+    # .. setting_description: Maximum number of retries per block structure task.
+    #   If the maximum number of retries is exceeded, then you can attempt to either manually run
+    #   the celery task, or wait for it to be triggered again.
+    #   For more information, check https://openedx.atlassian.net/browse/TNL-5041.
     TASK_MAX_RETRIES=5,
 
-    # Backend storage options
+    # .. toggle_name: BLOCK_STRUCTURES_SETTINGS['PRUNING_ACTIVE']
+    # .. toggle_implementation: DjangoSetting
+    # .. toggle_default: False
+    # .. toggle_description: When `True`, only a specified number of versions of block structure
+    #   files are kept for each structure, and the rest are cleaned up. The number of versions that
+    #   are kept can be specified in the `BlockStructureConfiguration`, which can be edited in
+    #   Django Admin. The default number of versions that are kept is `5`.
+    # .. toggle_warnings: This toggle will likely be deprecated and removed.
+    #   The annotation will be updated with the DEPR ticket once that process has started.
+    # .. toggle_use_cases: temporary
+    # .. toggle_creation_date: 2018-03-22
+    # .. toggle_target_removal_date: 2018-06-22
+    # .. toggle_tickets: https://openedx.atlassian.net/browse/EDUCATOR-499
     PRUNING_ACTIVE=False,
 )
 
@@ -3089,14 +3163,38 @@ CERT_NAME_LONG = "Certificate of Achievement"
 
 #################### OpenBadges Settings #######################
 
+# .. setting_name: BADGING_BACKEND
+# .. setting_default: 'lms.djangoapps.badges.backends.badgr.BadgrBackend'
+# .. setting_description: The backend service class (or callable) for creating OpenBadges. It must implement
+#    the interface provided by lms.djangoapps.badges.backends.base.BadgeBackend
+# .. setting_warning: Review FEATURES['ENABLE_OPENBADGES'] for further context.
 BADGING_BACKEND = 'lms.djangoapps.badges.backends.badgr.BadgrBackend'
 
-# Be sure to set up images for course modes using the BadgeImageConfiguration model in the certificates app.
+# .. setting_name: BADGR_API_TOKEN
+# .. setting_default: None
+# .. setting_description: The API token string for Badgr. You should be able to create this via Badgr's settings. See
+#    https://github.com/concentricsky/badgr-server for details on setting up Badgr.
+# .. setting_warning: Review FEATURES['ENABLE_OPENBADGES'] for further context.
 BADGR_API_TOKEN = None
-# Do not add the trailing slash here.
+
+# .. setting_name: BADGR_BASE_URL
+# .. setting_default: 'http://localhost:8005'
+# .. setting_description: The base URL for the Badgr server.
+# .. setting_warning: DO NOT include a trailing slash. Review FEATURES['ENABLE_OPENBADGES'] for further context.
 BADGR_BASE_URL = "http://localhost:8005"
+
+# .. setting_name: BADGR_ISSUER_SLUG
+# .. setting_default: 'example-issuer'
+# .. setting_description: A string that is the slug for the Badgr issuer. The slug can be obtained from the URL of
+#    the Badgr Server page that displays the issuer. For example, in the URL
+#    http://exampleserver.com/issuer/test-issuer, the issuer slug is "test-issuer".
+# .. setting_warning: Review FEATURES['ENABLE_OPENBADGES'] for further context.
 BADGR_ISSUER_SLUG = "example-issuer"
-# Number of seconds to wait on the badging server when contacting it before giving up.
+
+# .. setting_name: BADGR_TIMEOUT
+# .. setting_default: 10
+# .. setting_description: Number of seconds to wait on the badging server when contacting it before giving up.
+# .. setting_warning: Review FEATURES['ENABLE_OPENBADGES'] for further context.
 BADGR_TIMEOUT = 10
 
 ###################### Grade Downloads ######################
@@ -4064,16 +4162,74 @@ PASSWORD_RESET_IP_RATE = '1/m'
 PASSWORD_RESET_EMAIL_RATE = '2/h'
 
 ############### Settings for Retirement #####################
+# .. setting_name: RETIRED_USERNAME_PREFIX
+# .. setting_default: retired__user_
+# .. setting_description: Set the prefix part of hashed usernames for retired users. Used by the derived
+#     setting RETIRED_USERNAME_FMT.
 RETIRED_USERNAME_PREFIX = 'retired__user_'
+# .. setting_name: RETIRED_EMAIL_PREFIX
+# .. setting_default: retired__user_
+# .. setting_description: Set the prefix part of hashed emails for retired users. Used by the derived
+#     setting RETIRED_EMAIL_FMT.
 RETIRED_EMAIL_PREFIX = 'retired__user_'
+# .. setting_name: RETIRED_EMAIL_DOMAIN
+# .. setting_default: retired.invalid
+# .. setting_description: Set the domain part of hashed emails for retired users. Used by the derived
+#     setting RETIRED_EMAIL_FMT.
 RETIRED_EMAIL_DOMAIN = 'retired.invalid'
+# .. setting_name: RETIRED_USERNAME_FMT
+# .. setting_default: retired__user_{}
+# .. setting_description: Set the format a retired user username field gets transformed into, where {}
+#     is replaced with the hash of the original username. This is a derived setting that depends on
+#     RETIRED_USERNAME_PREFIX value.
 RETIRED_USERNAME_FMT = lambda settings: settings.RETIRED_USERNAME_PREFIX + '{}'
+# .. setting_name: RETIRED_EMAIL_FMT
+# .. setting_default: retired__user_{}@retired.invalid
+# .. setting_description: Set the format a retired user email field gets transformed into, where {} is
+#     replaced with the hash of the original email. This is a derived setting that depends on
+#     RETIRED_EMAIL_PREFIX and RETIRED_EMAIL_DOMAIN values.
 RETIRED_EMAIL_FMT = lambda settings: settings.RETIRED_EMAIL_PREFIX + '{}@' + settings.RETIRED_EMAIL_DOMAIN
 derived('RETIRED_USERNAME_FMT', 'RETIRED_EMAIL_FMT')
+# .. setting_name: RETIRED_USER_SALTS
+# .. setting_default: ['abc', '123']
+# .. setting_description: Set a list of salts used for hashing usernames and emails on users retirement.
+# .. setting_warning: Only the last item in this list is used as a salt for all new retirements, but
+#     historical salts are preserved in order to guarantee that all hashed usernames and emails can still
+#     be checked.
 RETIRED_USER_SALTS = ['abc', '123']
+# .. setting_name: RETIREMENT_SERVICE_WORKER_USERNAME
+# .. setting_default: RETIREMENT_SERVICE_USER
+# .. setting_description: Set the username of the retirement service worker user. Retirement scripts
+#     authenticate with LMS as this user with oauth client credentials.
 RETIREMENT_SERVICE_WORKER_USERNAME = 'RETIREMENT_SERVICE_USER'
 
 # These states are the default, but are designed to be overridden in configuration.
+# .. setting_name: RETIREMENT_STATES
+# .. setting_default:
+#     [
+#         'PENDING',
+#         'LOCKING_ACCOUNT',
+#         'LOCKING_COMPLETE',
+#         'RETIRING_FORUMS',
+#         'FORUMS_COMPLETE',
+#         'RETIRING_EMAIL_LISTS',
+#         'EMAIL_LISTS_COMPLETE',
+#         'RETIRING_ENROLLMENTS',
+#         'ENROLLMENTS_COMPLETE',
+#         'RETIRING_NOTES',
+#         'NOTES_COMPLETE',
+#         'RETIRING_LMS',
+#         'LMS_COMPLETE',
+#         'ERRORED',
+#         'ABORTED',
+#         'COMPLETE',
+#     ]
+# .. setting_description: Set a list that defines the name and order of states for the retirement
+#     workflow.
+# .. setting_warning: These states are stored in the database and it is the responsibility of the
+#     administrator to populate the state list since the states can vary across different installations.
+#     There must be, at minimum, a PENDING state at the beginning, and COMPLETED, ERRORED, and ABORTED
+#     states at the end of the list.
 RETIREMENT_STATES = [
     'PENDING',
 
